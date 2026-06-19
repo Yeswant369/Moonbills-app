@@ -1,26 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..900&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── Design tokens ─────────────────────────────────────── */
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Base ──────────────────────────────────────────────── */
+html,
+body {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  /* Prevent overscroll bounce on iPad */
+  overscroll-behavior: none;
+  touch-action: pan-x pan-y;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Prevent double-tap zoom on touch buttons */
+button,
+a {
+  touch-action: manipulation;
+}
+
+/* ─────────────────────────────────────────────────────────
+   PRINT STYLES — Thermal Receipt
+   Only the #print-receipt element is visible when printing.
+   Everything else is hidden.
+   @page rules are scoped by width class on #print-receipt.
+───────────────────────────────────────────────────────── */
+@media print {
+  /* ── 80mm thermal (default) ─────────────────────── */
+  @page {
+    size: 80mm auto;
+    margin: 3mm 2mm;
+  }
+
+  /* ── 58mm thermal override ──────────────────────── */
+  #print-receipt.thermal-58mm {
+    /* stylelint-disable-next-line declaration-no-important */
+    --receipt-width: 58mm !important;
+  }
+
+  @page thermal-58 {
+    size: 58mm auto;
+    margin: 3mm 1.5mm;
+  }
+
+  /* Hide the entire app */
+  * {
+    visibility: hidden !important;
+  }
+
+  /* Show only the receipt */
+  #print-receipt,
+  #print-receipt * {
+    visibility: visible !important;
+  }
+
+  #print-receipt {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: var(--receipt-width, 80mm) !important;
+    page: auto;
+  }
+
+  #print-receipt.thermal-58mm {
+    page: thermal-58;
+  }
+
+  /* Suppress background colors / images — saves toner */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Receipt body — shared thermal styles ──────────────── */
+.receipt-body {
+  font-family: 'Courier New', Courier, 'Lucida Console', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #000;
+  width: 100%;
+  margin: 0;
+  padding: 1mm 0;
+  /* No max-width: the #print-receipt container controls physical width */
+}
+
+/* 58mm: slightly smaller type to fit narrower roll */
+.thermal-58mm .receipt-body {
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.receipt-body .sep {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: inherit;
+  letter-spacing: 0;
+  color: #000;
+  display: block;
+  margin: 2px 0;
+  overflow: hidden;
+  white-space: pre;
 }
