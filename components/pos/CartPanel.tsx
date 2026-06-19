@@ -13,8 +13,16 @@ interface Props {
   onRemove: (productId: string) => void;
   onClear: () => void;
   onPrint: () => void;
+  /** Show the close (×) button — true in drawer mode */
+  showClose?: boolean;
+  onClose?: () => void;
 }
 
+/**
+ * Pure content component — no fixed/absolute positioning.
+ * The parent is responsible for the container (flex row on desktop,
+ * fixed overlay on mobile).
+ */
 export function CartPanel({
   cart,
   subtotal,
@@ -25,33 +33,51 @@ export function CartPanel({
   onRemove,
   onClear,
   onPrint,
+  showClose = false,
+  onClose,
 }: Props) {
   const isEmpty = cart.length === 0;
+  const totalQty = cart.reduce((s, i) => s + i.quantity, 0);
 
   return (
-    <div className="w-80 flex-shrink-0 bg-white border-l border-slate-200 flex flex-col">
-      {/* Header */}
-      <div className="px-4 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
-        <h2 className="text-base font-bold text-slate-900">
+    <div className="flex flex-col h-full bg-white">
+
+      {/* ── Header ──────────────────────────────────────────── */}
+      <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+        <h2 className="text-sm font-bold text-slate-900">
           Current Bill
-          {cart.length > 0 && (
+          {totalQty > 0 && (
             <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
-              {cart.reduce((s, i) => s + i.quantity, 0)} items
+              {totalQty} items
             </span>
           )}
         </h2>
-        {!isEmpty && (
-          <button
-            onClick={onClear}
-            className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors py-1 px-2 rounded-lg hover:bg-red-50"
-          >
-            Clear
-          </button>
-        )}
+
+        <div className="flex items-center gap-1">
+          {!isEmpty && (
+            <button
+              onClick={onClear}
+              className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors py-1 px-2 rounded-lg hover:bg-red-50"
+            >
+              Clear
+            </button>
+          )}
+          {showClose && (
+            <button
+              onClick={onClose}
+              aria-label="Close cart"
+              className="ml-1 p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Items */}
-      <div className="flex-1 overflow-y-auto">
+      {/* ── Items (scrollable) ──────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto overscroll-contain">
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2 py-16">
             <div className="text-4xl">🧾</div>
@@ -62,7 +88,7 @@ export function CartPanel({
           <div className="divide-y divide-slate-50">
             {cart.map((item) => (
               <div key={item.product_id} className="px-4 py-3">
-                {/* Product name + delete */}
+                {/* Name + remove */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <p className="text-sm font-semibold text-slate-800 leading-snug flex-1">
                     {item.product_name}
@@ -78,9 +104,8 @@ export function CartPanel({
                   </button>
                 </div>
 
-                {/* Quantity + Price */}
+                {/* Qty controls + price */}
                 <div className="flex items-center justify-between">
-                  {/* Qty controls */}
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onUpdateQuantity(item.product_id, -1)}
@@ -100,14 +125,9 @@ export function CartPanel({
                       +
                     </button>
                   </div>
-                  {/* Line total */}
                   <div className="text-right">
-                    <p className="text-sm font-bold text-slate-900">
-                      {formatCurrency(item.line_total)}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      @ {formatCurrency(item.unit_price)}
-                    </p>
+                    <p className="text-sm font-bold text-slate-900">{formatCurrency(item.line_total)}</p>
+                    <p className="text-xs text-slate-400">@ {formatCurrency(item.unit_price)}</p>
                   </div>
                 </div>
               </div>
@@ -116,9 +136,8 @@ export function CartPanel({
         )}
       </div>
 
-      {/* Summary + Actions */}
+      {/* ── Totals + Print ──────────────────────────────────── */}
       <div className="border-t border-slate-200 flex-shrink-0">
-        {/* Totals */}
         <div className="px-4 py-3 space-y-1.5 bg-slate-50">
           <div className="flex justify-between text-sm text-slate-600">
             <span>Subtotal</span>
@@ -134,13 +153,12 @@ export function CartPanel({
           </div>
         </div>
 
-        {/* Print Button */}
         <div className="p-4">
           <button
             onClick={onPrint}
             disabled={isEmpty}
             className={`
-              w-full h-13 rounded-xl text-base font-bold transition-all
+              w-full py-3.5 rounded-xl text-base font-bold transition-all
               ${isEmpty
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 : 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white shadow-md shadow-orange-200'

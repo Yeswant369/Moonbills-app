@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Category, Product, CartItem, Settings, PaymentMethod, ReceiptData, PendingSale } from '@/lib/types';
-import { generateBillNumber, round2 } from '@/lib/utils';
+import { generateBillNumber, round2, formatCurrency } from '@/lib/utils';
 import { createSale } from '@/actions/sales';
 import { queueSale, getPendingSales, removeSale } from '@/lib/offline-queue';
 import { CategorySidebar } from './CategorySidebar';
@@ -30,6 +30,7 @@ interface Props {
 export function POSScreen({ categories, products, settings }: Props) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -226,11 +227,21 @@ export function POSScreen({ categories, products, settings }: Props) {
     }
   }, [retrying, showToast]);
 
+  const totalQty = cart.reduce((s, i) => s + i.quantity, 0);
+  // Close cart drawer after printing
+  const handlePrint = () => {
+    if (cart.length > 0) {
+      setShowPaymentModal(true);
+      setCartOpen(false);
+    }
+  };
+
   return (
     <>
       {/* ── Main POS Layout ─────────────────────────────────── */}
       <div className="flex h-screen bg-slate-50 overflow-hidden">
-        {/* Left: Categories */}
+
+        {/* Left: Categories — vertical sidebar, hidden on mobile */}
         <CategorySidebar
           categories={categories}
           selectedId={selectedCategoryId}
@@ -239,32 +250,38 @@ export function POSScreen({ categories, products, settings }: Props) {
 
         {/* Center: Products */}
         <main className="flex-1 flex flex-col overflow-hidden min-w-0">
-          {/* Top bar */}
-          <header className="bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between flex-shrink-0">
-            <div>
-              <h1 className="text-base font-bold text-slate-900 leading-tight">
-                {settings.restaurant_name}
-              </h1>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {selectedCategoryId
-                  ? categories.find((c) => c.id === selectedCategoryId)?.name ?? 'Category'
-                  : 'All Items'}{' '}
-                · {filteredProducts.length} products
-              </p>
+
+          {/* ── Top bar ─────────────────────────────────────── */}
+          <header className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between gap-3 flex-shrink-0">
+            {/* Mobile brand (hidden when sidebar is visible) */}
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <span className="md:hidden text-slate-900 font-bold text-base">🧁</span>
+              <div className="min-w-0">
+                <h1 className="text-base font-bold text-slate-900 leading-tight truncate">
+                  {settings.restaurant_name}
+                </h1>
+                <p className="text-xs text-slate-400 mt-0.5 truncate hidden sm:block">
+                  {selectedCategoryId
+                    ? categories.find((c) => c.id === selectedCategoryId)?.name ?? 'Category'
+                    : 'All Items'}{' '}
+                  · {filteredProducts.length} products
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 flex-shrink-0">
               {pendingCount > 0 && (
                 <button
                   onClick={handleRetry}
                   disabled={retrying}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-100 transition-colors"
                 >
-                  ⚠️ {retrying ? 'Retrying…' : `${pendingCount} unsynced`}
+                  ⚠️ {retrying ? 'Retrying…' : `${pendingCount} pending`}
                 </button>
               )}
               <Link
                 href="/reports"
-                className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100 transition-colors"
+                className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100 transition-colors hidden sm:block"
               >
                 Reports
               </Link>
@@ -277,13 +294,104 @@ export function POSScreen({ categories, products, settings }: Props) {
             </div>
           </header>
 
-          {/* Product Grid */}
-          <div className="flex-1 overflow-y-auto">
+          {/* ── Mobile horizontal category tabs (md+ uses sidebar) ── */}
+          <div className="md:hidden flex gap-2 px-4 py-2.5 bg-slate-900 overflow-x-auto flex-shrink-0 scrollbar-none">
+            {[{ id: null, name: 'All Items' }, ...categories].map((cat) => (
+              <button
+                key={cat.id ?? 'all'}
+                onClick={() => setSelectedCategoryId(cat.id)}
+                className={`
+                  flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium
+                  transition-all whitespace-nowrap
+                  ${selectedCategoryId === cat.id
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                  }
+                `}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* ── Product Grid ─────────────────────────────────── */}
+          <div className="flex-1 overflow-y-auto overscroll-contain">
             <ProductGrid products={filteredProducts} onAdd={addToCart} />
           </div>
+
+          {/* ── Floating View Bill FAB (mobile/tablet, lg+ hidden) ── */}
+          <div
+            className={`
+              lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-30
+              transition-all duration-300
+              ${totalQty > 0 && !cartOpen
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-4 pointer-events-none'
+              }
+            `}
+          >
+            <button
+              onClick={() => setCartOpen(true)}
+              className="
+                flex items-center gap-3 px-6 py-3.5
+                bg-orange-500 hover:bg-orange-600 active:bg-orange-700
+                text-white font-bold text-sm rounded-2xl
+                shadow-lg shadow-orange-500/40
+                transition-colors
+              "
+            >
+              <span className="relative">
+                🧾
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-white text-orange-600 rounded-full text-[10px] font-bold flex items-center justify-center">
+                  {totalQty}
+                </span>
+              </span>
+              <span>View Bill · {formatCurrency(total)}</span>
+            </button>
+          </div>
+
         </main>
 
-        {/* Right: Cart */}
+        {/* ── Desktop cart: always-visible sidebar (lg+) ──────── */}
+        {/*    hidden on mobile/tablet so it doesn't affect layout */}
+        <aside className="hidden lg:flex lg:w-80 lg:flex-shrink-0 border-l border-slate-200">
+          <CartPanel
+            cart={cart}
+            subtotal={subtotal}
+            gstAmount={gstAmount}
+            gstPercentage={settings.gst_percentage}
+            total={total}
+            onUpdateQuantity={updateQuantity}
+            onRemove={removeFromCart}
+            onClear={() => setCart([])}
+            onPrint={handlePrint}
+            showClose={false}
+          />
+        </aside>
+
+      </div>{/* end flex h-screen */}
+
+      {/* ── Mobile/tablet cart drawer (hidden on lg+) ───────── */}
+      {/* Backdrop */}
+      <div
+        onClick={() => setCartOpen(false)}
+        aria-hidden="true"
+        className={`
+          lg:hidden fixed inset-0 z-40 bg-black/50
+          transition-opacity duration-300
+          ${cartOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+        `}
+      />
+      {/* Drawer panel — slides in from right */}
+      <div
+        className={`
+          lg:hidden fixed inset-y-0 right-0 z-50
+          w-full sm:w-96
+          shadow-2xl border-l border-slate-200
+          transition-transform duration-300 ease-in-out
+          ${cartOpen ? 'translate-x-0' : 'translate-x-full'}
+        `}
+      >
         <CartPanel
           cart={cart}
           subtotal={subtotal}
@@ -293,7 +401,9 @@ export function POSScreen({ categories, products, settings }: Props) {
           onUpdateQuantity={updateQuantity}
           onRemove={removeFromCart}
           onClear={() => setCart([])}
-          onPrint={() => cart.length > 0 && setShowPaymentModal(true)}
+          onPrint={handlePrint}
+          showClose
+          onClose={() => setCartOpen(false)}
         />
       </div>
 
