@@ -376,7 +376,7 @@ export function POSScreen({ categories, products, settings }: Props) {
           />
         </aside>
 
-      </div>{/* end flex h-screen */}
+      </div>{/* end safe-screen flex */}
 
       {/* ── Mobile/tablet cart drawer (hidden on lg+) ───────── */}
       {/* Backdrop */}

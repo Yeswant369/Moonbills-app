@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Category, Product, Settings, PrinterWidth } from '@/lib/types';
 import { PinGate } from '@/components/admin/PinGate';
 import { CategoryManager } from '@/components/admin/CategoryManager';
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export function SettingsScreen({ initialSettings, initialCategories, initialProducts }: Props) {
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>('general');
   const [settings, setSettings] = useState(initialSettings);
   const [form, setForm] = useState({
@@ -83,6 +85,9 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
       setForm((f) => ({ ...f, new_pin: '', confirm_pin: '' }));
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+      // Refresh the Next.js router cache so the POS home screen
+      // picks up the new restaurant name without a full reload
+      router.refresh();
     } else {
       setError(result.error ?? 'Failed to save');
     }
@@ -96,7 +101,7 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="safe-screen overflow-y-auto bg-slate-50">
       {/* Top Bar */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center gap-4">
         <Link

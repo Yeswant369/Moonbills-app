@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { createServerClient } from '@/lib/supabase';
 import { Settings } from '@/lib/types';
 
@@ -48,6 +49,11 @@ export async function updateSettings(
         .insert({ ...DEFAULTS, ...updates });
       if (error) throw new Error(error.message);
     }
+
+    // Bust Next.js server-side cache so the POS home page
+    // re-fetches fresh settings on next navigation
+    revalidatePath('/');
+    revalidatePath('/settings');
 
     return { success: true };
   } catch (err: unknown) {
