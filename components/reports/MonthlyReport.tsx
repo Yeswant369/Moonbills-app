@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { SaleWithItems } from '@/lib/types';
-import { formatCurrency, formatDate, getPaymentLabel, currentYearMonth } from '@/lib/utils';
+import { formatCurrency, formatDate, currentYearMonth } from '@/lib/utils';
 import { getMonthlySales } from '@/actions/sales';
 
 export function MonthlyReport() {

@@ -63,10 +63,19 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(
-  id: string
+  id: string,
+  options: { deleteProducts?: boolean } = {}
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = createServerClient();
+    if (options.deleteProducts) {
+      const { error: productError } = await supabase
+        .from('products')
+        .delete()
+        .eq('category_id', id);
+      if (productError) throw new Error(productError.message);
+    }
+
     const { error } = await supabase.from('categories').delete().eq('id', id);
     if (error) throw new Error(error.message);
 

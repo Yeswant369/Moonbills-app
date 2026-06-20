@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { Category, Product, CartItem, Settings, PaymentMethod, ReceiptData, PendingSale } from '@/lib/types';
 import { generateBillNumber, round2, formatCurrency } from '@/lib/utils';
 import { createSale } from '@/actions/sales';
+import { getCategories } from '@/actions/categories';
+import { getProducts } from '@/actions/products';
+import { getSettings } from '@/actions/settings';
 import { queueSale, getPendingSales, removeSale } from '@/lib/offline-queue';
 import { printBill } from '@/lib/printer';
 import { CategorySidebar } from './CategorySidebar';
@@ -29,6 +32,9 @@ interface Props {
 }
 
 export function POSScreen({ categories, products, settings }: Props) {
+  const [liveCategories, setLiveCategories] = useState(categories);
+  const [liveProducts, setLiveProducts] = useState(products);
+  const [liveSettings, setLiveSettings] = useState(settings);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -41,13 +47,49 @@ export function POSScreen({ categories, products, settings }: Props) {
 
   // Load pending count on mount
   useEffect(() => {
-    setPendingCount(getPendingSales().length);
+    queueMicrotask(() => setPendingCount(getPendingSales().length));
   }, []);
+
+  const refreshData = useCallback(async () => {
+    const [nextCategories, nextProducts, nextSettings] = await Promise.all([
+      getCategories(),
+      getProducts(),
+      getSettings(),
+    ]);
+
+    setLiveCategories(nextCategories);
+    setLiveProducts(nextProducts);
+    setLiveSettings(nextSettings);
+    setSelectedCategoryId((current) =>
+      current && !nextCategories.some((category) => category.id === current)
+        ? null
+        : current
+    );
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void refreshData();
+    });
+
+    const handleFocus = () => void refreshData();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') void refreshData();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [refreshData]);
 
   // Filter products by selected category (active only)
   const filteredProducts = selectedCategoryId
-    ? products.filter((p) => p.category_id === selectedCategoryId && p.active)
-    : products.filter((p) => p.active);
+    ? liveProducts.filter((p) => p.category_id === selectedCategoryId && p.active)
+    : liveProducts.filter((p) => p.active);
 
   // ── Toast helpers ──────────────────────────────────────────
   const showToast = useCallback((
@@ -113,7 +155,7 @@ export function POSScreen({ categories, products, settings }: Props) {
 
   // ── Totals ─────────────────────────────────────────────────
   const subtotal = round2(cart.reduce((sum, item) => sum + item.line_total, 0));
-  const gstAmount = round2((subtotal * settings.gst_percentage) / 100);
+  const gstAmount = round2((subtotal * liveSettings.gst_percentage) / 100);
   const total = round2(subtotal + gstAmount);
 
   // ── Payment selection → generate receipt → print ──────────
@@ -126,18 +168,18 @@ export function POSScreen({ categories, products, settings }: Props) {
         items: [...cart], // snapshot
         subtotal,
         gstAmount,
-        gstPercentage: settings.gst_percentage,
+        gstPercentage: liveSettings.gst_percentage,
         total,
         paymentMethod: method,
         timestamp: new Date().toISOString(),
-        restaurantName: settings.restaurant_name,
-        gstNumber: settings.gst_number,
+        restaurantName: liveSettings.restaurant_name,
+        gstNumber: liveSettings.gst_number,
       };
       setShowPaymentModal(false);
       printTriggeredRef.current = false;
       setReceiptData(data);
     },
-    [cart, subtotal, gstAmount, total, settings]
+    [cart, subtotal, gstAmount, total, liveSettings]
   );
 
   // ── Print + save effect ────────────────────────────────────
@@ -160,14 +202,14 @@ export function POSScreen({ categories, products, settings }: Props) {
       }
 
       // ── SAVE to Supabase (fire-and-forget, unchanged) ───────
-      createSale(savedItems, savedMethod, settings, savedBillNumber)
+      createSale(savedItems, savedMethod, liveSettings, savedBillNumber)
         .then((result) => {
           if (!result.success) {
             const pending: PendingSale = {
               localId: crypto.randomUUID(),
               cart: savedItems,
               paymentMethod: savedMethod,
-              settings,
+              settings: liveSettings,
               billNumber: savedBillNumber,
               timestamp: Date.now(),
             };
@@ -181,7 +223,7 @@ export function POSScreen({ categories, products, settings }: Props) {
             localId: crypto.randomUUID(),
             cart: savedItems,
             paymentMethod: savedMethod,
-            settings,
+            settings: liveSettings,
             billNumber: savedBillNumber,
             timestamp: Date.now(),
           };
@@ -250,7 +292,7 @@ export function POSScreen({ categories, products, settings }: Props) {
 
         {/* Left: Categories — vertical sidebar, hidden on mobile */}
         <CategorySidebar
-          categories={categories}
+          categories={liveCategories}
           selectedId={selectedCategoryId}
           onSelect={setSelectedCategoryId}
         />
@@ -265,11 +307,11 @@ export function POSScreen({ categories, products, settings }: Props) {
               <span className="md:hidden text-slate-900 font-bold text-base">🧁</span>
               <div className="min-w-0">
                 <h1 className="text-base font-bold text-slate-900 leading-tight truncate">
-                  {settings.restaurant_name}
+                  {liveSettings.restaurant_name}
                 </h1>
                 <p className="text-xs text-slate-400 mt-0.5 truncate hidden sm:block">
                   {selectedCategoryId
-                    ? categories.find((c) => c.id === selectedCategoryId)?.name ?? 'Category'
+                    ? liveCategories.find((c) => c.id === selectedCategoryId)?.name ?? 'Category'
                     : 'All Items'}{' '}
                   · {filteredProducts.length} products
                 </p>
@@ -303,7 +345,7 @@ export function POSScreen({ categories, products, settings }: Props) {
 
           {/* ── Mobile horizontal category tabs (md+ uses sidebar) ── */}
           <div className="md:hidden flex gap-2 px-4 py-2.5 bg-slate-900 overflow-x-auto flex-shrink-0 scrollbar-none">
-            {[{ id: null, name: 'All Items' }, ...categories].map((cat) => (
+            {[{ id: null, name: 'All Items' }, ...liveCategories].map((cat) => (
               <button
                 key={cat.id ?? 'all'}
                 onClick={() => setSelectedCategoryId(cat.id)}
@@ -366,7 +408,7 @@ export function POSScreen({ categories, products, settings }: Props) {
             cart={cart}
             subtotal={subtotal}
             gstAmount={gstAmount}
-            gstPercentage={settings.gst_percentage}
+            gstPercentage={liveSettings.gst_percentage}
             total={total}
             onUpdateQuantity={updateQuantity}
             onRemove={removeFromCart}
@@ -403,7 +445,7 @@ export function POSScreen({ categories, products, settings }: Props) {
           cart={cart}
           subtotal={subtotal}
           gstAmount={gstAmount}
-          gstPercentage={settings.gst_percentage}
+          gstPercentage={liveSettings.gst_percentage}
           total={total}
           onUpdateQuantity={updateQuantity}
           onRemove={removeFromCart}
@@ -424,7 +466,7 @@ export function POSScreen({ categories, products, settings }: Props) {
       )}
 
       {/* ── Receipt (print-only, used for browser window.print() fallback) ── */}
-      <Receipt data={receiptData} printerWidth={settings.printer_width} />
+      <Receipt data={receiptData} printerWidth={liveSettings.printer_width} />
 
       {/* ── Toasts ──────────────────────────────────────────── */}
       <ToastContainer>

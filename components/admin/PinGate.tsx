@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Link from 'next/link';
 import { verifyPin } from '@/actions/settings';
 
 interface Props {
@@ -125,12 +126,12 @@ export function PinGate({ onSuccess, title = 'Enter Admin PIN' }: Props) {
         </button>
 
         {/* Back to POS */}
-        <a
+        <Link
           href="/"
           className="block text-center text-sm text-slate-400 hover:text-slate-600 mt-4 transition-colors"
         >
           ← Back to POS
-        </a>
+        </Link>
       </div>
     </div>
   );

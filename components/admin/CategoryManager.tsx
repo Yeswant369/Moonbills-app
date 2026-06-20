@@ -11,10 +11,17 @@ import {
 
 interface Props {
   categories: Category[];
+  productCountsByCategory: Record<string, number>;
   onCategoriesChange: (categories: Category[]) => void;
+  onCategoryProductsDeleted: (categoryId: string) => void;
 }
 
-export function CategoryManager({ categories, onCategoriesChange }: Props) {
+export function CategoryManager({
+  categories,
+  productCountsByCategory,
+  onCategoriesChange,
+  onCategoryProductsDeleted,
+}: Props) {
   const [newName, setNewName] = useState('');
   const [adding, setAdding] = useState(false);
   const addingRef = useRef(false); // synchronous guard against rapid taps
@@ -54,11 +61,23 @@ export function CategoryManager({ categories, onCategoriesChange }: Props) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this category? Products in it will be uncategorised.')) return;
+    const productCount = productCountsByCategory[id] ?? 0;
+
+    if (productCount > 0) {
+      const confirmed = window.confirm(
+        `This category has ${productCount} product${productCount === 1 ? '' : 's'}.\n\n` +
+        'Deleting the category will also delete those products. Continue?'
+      );
+      if (!confirmed) return;
+    } else if (!window.confirm('Delete this empty category?')) {
+      return;
+    }
+
     setLoading(id);
-    const result = await deleteCategory(id);
+    const result = await deleteCategory(id, { deleteProducts: productCount > 0 });
     if (result.success) {
       onCategoriesChange(categories.filter((c) => c.id !== id));
+      if (productCount > 0) onCategoryProductsDeleted(id);
     }
     setLoading(null);
   };
@@ -134,7 +153,12 @@ export function CategoryManager({ categories, onCategoriesChange }: Props) {
                   className="flex-1 h-9 px-2 rounded-lg border border-orange-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                 />
               ) : (
-                <span className="flex-1 text-sm font-medium text-slate-800">{cat.name}</span>
+                <span className="flex-1 text-sm font-medium text-slate-800">
+                  {cat.name}
+                  <span className="ml-2 text-xs font-normal text-slate-400">
+                    {productCountsByCategory[cat.id] ?? 0} products
+                  </span>
+                </span>
               )}
 
               {/* Actions */}

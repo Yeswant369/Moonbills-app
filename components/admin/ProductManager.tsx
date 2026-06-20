@@ -7,6 +7,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  deleteUncategorizedProducts,
   toggleProductActive,
 } from '@/actions/products';
 
@@ -40,6 +41,8 @@ export function ProductManager({ products, categories, onProductsChange }: Props
 
   const visibleProducts = filterCat === 'all'
     ? products
+    : filterCat === 'uncategorized'
+    ? products.filter((p) => !p.category_id)
     : products.filter((p) => p.category_id === filterCat);
 
   const getCatName = (id: string | null) =>
@@ -121,6 +124,19 @@ export function ProductManager({ products, categories, onProductsChange }: Props
     setLoading(null);
   };
 
+  const handleDeleteUncategorized = async () => {
+    const count = products.filter((p) => !p.category_id).length;
+    if (count === 0) return;
+    if (!window.confirm(`Delete all ${count} uncategorized product${count === 1 ? '' : 's'}?`)) return;
+
+    setLoading('delete-uncategorized');
+    const result = await deleteUncategorizedProducts();
+    if (result.success) {
+      onProductsChange(products.filter((p) => p.category_id));
+    }
+    setLoading(null);
+  };
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -131,11 +147,21 @@ export function ProductManager({ products, categories, onProductsChange }: Props
           className="h-9 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
         >
           <option value="all">All Categories</option>
+          <option value="uncategorized">Uncategorized</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
         <span className="text-xs text-slate-400">{visibleProducts.length} products</span>
+        {filterCat === 'uncategorized' && visibleProducts.length > 0 && (
+          <button
+            onClick={handleDeleteUncategorized}
+            disabled={loading === 'delete-uncategorized'}
+            className="px-3 h-9 bg-red-50 text-red-600 hover:bg-red-100 disabled:bg-slate-100 disabled:text-slate-400 font-semibold text-sm rounded-xl transition-colors"
+          >
+            {loading === 'delete-uncategorized' ? 'Deleting...' : 'Delete Uncategorized'}
+          </button>
+        )}
         <div className="ml-auto">
           <button
             onClick={() => {

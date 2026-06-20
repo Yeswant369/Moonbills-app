@@ -75,6 +75,20 @@ export async function deleteProduct(
   }
 }
 
+export async function deleteUncategorizedProducts(): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = createServerClient();
+    const { error } = await supabase.from('products').delete().is('category_id', null);
+    if (error) throw new Error(error.message);
+
+    revalidatePath('/');
+    revalidatePath('/settings');
+    return { success: true };
+  } catch (err: unknown) {
+    return { success: false, error: String(err) };
+  }
+}
+
 export async function toggleProductActive(
   id: string,
   active: boolean

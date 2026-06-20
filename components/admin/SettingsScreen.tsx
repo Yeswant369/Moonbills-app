@@ -40,15 +40,23 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
   const [printerIp, setPrinterIp] = useState('192.168.1.100');
   const [printerPort, setPrinterPort] = useState('9100');
   const [printSettingsSaved, setPrintSettingsSaved] = useState(false);
+  const productCountsByCategory = products.reduce<Record<string, number>>((acc, product) => {
+    if (product.category_id) {
+      acc[product.category_id] = (acc[product.category_id] ?? 0) + 1;
+    }
+    return acc;
+  }, {});
 
   // Load from localStorage on mount (client-only)
   useEffect(() => {
-    const mode = localStorage.getItem('printMode') as 'tcp' | 'airprint' | null;
-    const ip   = localStorage.getItem('printerIp');
-    const port = localStorage.getItem('printerPort');
-    if (mode)  setPrintMode(mode);
-    if (ip)    setPrinterIp(ip);
-    if (port)  setPrinterPort(port);
+    queueMicrotask(() => {
+      const mode = localStorage.getItem('printMode') as 'tcp' | 'airprint' | null;
+      const ip   = localStorage.getItem('printerIp');
+      const port = localStorage.getItem('printerPort');
+      if (mode)  setPrintMode(mode);
+      if (ip)    setPrinterIp(ip);
+      if (port)  setPrinterPort(port);
+    });
   }, []);
 
   const handleSavePrintSettings = () => {
@@ -267,7 +275,7 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
               <h3 className="text-base font-bold text-slate-900 mb-1">Printing</h3>
               <p className="text-xs text-slate-400 mb-4">
                 Choose how receipts are sent to the printer. TCP mode is for WiFi thermal printers
-                (ESC-POS over port 9100). AirPrint uses the device's native print service.
+                (ESC-POS over port 9100). AirPrint uses the device&apos;s native print service.
               </p>
 
               {/* Mode toggle */}
@@ -359,9 +367,13 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
             <h2 className="text-lg font-bold text-slate-900 mb-4">Manage Categories</h2>
             <CategoryManager
               categories={categories}
+              productCountsByCategory={productCountsByCategory}
               onCategoriesChange={(next) => {
                 setCategories(next);
                 router.refresh();
+              }}
+              onCategoryProductsDeleted={(categoryId) => {
+                setProducts((current) => current.filter((product) => product.category_id !== categoryId));
               }}
             />
           </div>

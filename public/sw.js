@@ -4,14 +4,12 @@
 //   - Pages: network-first with cache fallback
 //   - POST/server actions: pass through (not cached)
 
-const CACHE_NAME = 'cherrys-pos-v1';
+const CACHE_NAME = 'cherrys-pos-v2';
 const OFFLINE_URL = '/';
 
-// Assets to pre-cache on install
+// Assets to pre-cache on install. Dynamic pages are intentionally not
+// pre-cached because settings/catalog changes must be fetched live.
 const PRE_CACHE = [
-  '/',
-  '/settings',
-  '/reports',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
