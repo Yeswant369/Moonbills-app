@@ -11,8 +11,9 @@ import {
 } from '@/actions/products';
 
 interface Props {
-  initialProducts: Product[];
+  products: Product[];
   categories: Category[];
+  onProductsChange: (products: Product[]) => void;
 }
 
 interface ProductForm {
@@ -29,8 +30,7 @@ const emptyForm = (categories: Category[]): ProductForm => ({
   active: true,
 });
 
-export function ProductManager({ initialProducts, categories }: Props) {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+export function ProductManager({ products, categories, onProductsChange }: Props) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState<ProductForm>(emptyForm(categories));
   const [editId, setEditId] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export function ProductManager({ initialProducts, categories }: Props) {
       active: addForm.active,
     });
     if (result.success && result.data) {
-      setProducts((prev) => [...prev, result.data!].sort((a, b) => a.name.localeCompare(b.name)));
+      onProductsChange([...products, result.data!].sort((a, b) => a.name.localeCompare(b.name)));
       setAddForm(emptyForm(categories));
       setShowAddForm(false);
     }
@@ -81,28 +81,32 @@ export function ProductManager({ initialProducts, categories }: Props) {
     const price = parseFloat(editForm.price);
     if (!name || isNaN(price) || price < 0) return;
     setLoading(id);
-    await updateProduct(id, {
+    const result = await updateProduct(id, {
       name,
       price,
       category_id: editForm.category_id || null,
       active: editForm.active,
     });
-    setProducts((prev) =>
-      prev.map((p) =>
+    if (result.success) {
+      onProductsChange(
+        products.map((p) =>
         p.id === id
           ? { ...p, name, price, category_id: editForm.category_id || null, active: editForm.active }
           : p
-      )
-    );
-    setEditId(null);
+        )
+      );
+      setEditId(null);
+    }
     setLoading(null);
   };
 
   // ── Toggle active ─────────────────────────────────────────
   const handleToggle = async (id: string, active: boolean) => {
     setLoading(id);
-    await toggleProductActive(id, active);
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, active } : p)));
+    const result = await toggleProductActive(id, active);
+    if (result.success) {
+      onProductsChange(products.map((p) => (p.id === id ? { ...p, active } : p)));
+    }
     setLoading(null);
   };
 
@@ -110,8 +114,10 @@ export function ProductManager({ initialProducts, categories }: Props) {
   const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`Delete "${name}"?`)) return;
     setLoading(id);
-    await deleteProduct(id);
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    const result = await deleteProduct(id);
+    if (result.success) {
+      onProductsChange(products.filter((p) => p.id !== id));
+    }
     setLoading(null);
   };
 
@@ -132,7 +138,12 @@ export function ProductManager({ initialProducts, categories }: Props) {
         <span className="text-xs text-slate-400">{visibleProducts.length} products</span>
         <div className="ml-auto">
           <button
-            onClick={() => setShowAddForm((v) => !v)}
+            onClick={() => {
+              if (!showAddForm && !addForm.category_id && categories[0]) {
+                setAddForm((form) => ({ ...form, category_id: categories[0].id }));
+              }
+              setShowAddForm((v) => !v);
+            }}
             className="px-4 h-9 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm rounded-xl transition-colors"
           >
             {showAddForm ? '✕ Cancel' : '+ Add Product'}

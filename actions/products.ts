@@ -30,8 +30,8 @@ export async function createProduct(
       .single();
     if (error) throw new Error(error.message);
 
-    // Revalidate POS screen so new product appears immediately
     revalidatePath('/');
+    revalidatePath('/settings');
 
     return { success: true, data: data as Product };
   } catch (err: unknown) {
@@ -52,6 +52,7 @@ export async function updateProduct(
     if (error) throw new Error(error.message);
 
     revalidatePath('/');
+    revalidatePath('/settings');
     return { success: true };
   } catch (err: unknown) {
     return { success: false, error: String(err) };
@@ -67,6 +68,7 @@ export async function deleteProduct(
     if (error) throw new Error(error.message);
 
     revalidatePath('/');
+    revalidatePath('/settings');
     return { success: true };
   } catch (err: unknown) {
     return { success: false, error: String(err) };

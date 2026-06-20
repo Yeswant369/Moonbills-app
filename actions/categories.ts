@@ -33,8 +33,8 @@ export async function createCategory(
 
     if (error) throw new Error(error.message);
 
-    // Revalidate POS screen so the new category appears immediately
     revalidatePath('/');
+    revalidatePath('/settings');
 
     return { success: true, data: data as Category };
   } catch (err: unknown) {
@@ -55,6 +55,7 @@ export async function updateCategory(
     if (error) throw new Error(error.message);
 
     revalidatePath('/');
+    revalidatePath('/settings');
     return { success: true };
   } catch (err: unknown) {
     return { success: false, error: String(err) };
@@ -70,6 +71,7 @@ export async function deleteCategory(
     if (error) throw new Error(error.message);
 
     revalidatePath('/');
+    revalidatePath('/settings');
     return { success: true };
   } catch (err: unknown) {
     return { success: false, error: String(err) };
@@ -105,6 +107,7 @@ export async function reorderCategory(
     ]);
 
     revalidatePath('/');
+    revalidatePath('/settings');
     return { success: true };
   } catch (err: unknown) {
     return { success: false, error: String(err) };

@@ -3,6 +3,8 @@ import { getProducts } from '@/actions/products';
 import { getSettings } from '@/actions/settings';
 import { POSScreen } from '@/components/pos/POSScreen';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Main POS page — server component.
  * Loads all initial data server-side and passes to the client POS screen.

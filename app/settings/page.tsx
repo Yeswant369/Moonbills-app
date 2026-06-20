@@ -7,6 +7,8 @@ export const metadata = {
   title: 'Settings — Cherrys Bakery POS',
 };
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Settings page — server component.
  * Loads data server-side and passes to client SettingsScreen (which has PIN gate).

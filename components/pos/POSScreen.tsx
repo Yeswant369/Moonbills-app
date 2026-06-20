@@ -246,7 +246,7 @@ export function POSScreen({ categories, products, settings }: Props) {
   return (
     <>
       {/* ── Main POS Layout ─────────────────────────────────── */}
-      <div className="safe-screen flex bg-slate-50 overflow-hidden">
+      <div className="safe-screen flex min-h-0 bg-slate-50 overflow-hidden">
 
         {/* Left: Categories — vertical sidebar, hidden on mobile */}
         <CategorySidebar
@@ -256,7 +256,7 @@ export function POSScreen({ categories, products, settings }: Props) {
         />
 
         {/* Center: Products */}
-        <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <main className="flex-1 flex min-h-0 flex-col overflow-hidden min-w-0">
 
           {/* ── Top bar ─────────────────────────────────────── */}
           <header className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between gap-3 flex-shrink-0">
@@ -322,7 +322,7 @@ export function POSScreen({ categories, products, settings }: Props) {
           </div>
 
           {/* ── Product Grid ─────────────────────────────────── */}
-          <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div className="app-scroll flex-1 min-h-0 overflow-y-auto">
             <ProductGrid products={filteredProducts} onAdd={addToCart} />
           </div>
 

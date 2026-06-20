@@ -21,6 +21,8 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('general');
   const [settings, setSettings] = useState(initialSettings);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [form, setForm] = useState({
     restaurant_name: initialSettings.restaurant_name,
     gst_number: initialSettings.gst_number,
@@ -101,7 +103,7 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
   ];
 
   return (
-    <div className="safe-screen overflow-y-auto bg-slate-50">
+    <div className="safe-screen app-scroll overflow-y-auto bg-slate-50">
       {/* Top Bar */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center gap-4">
         <Link
@@ -355,7 +357,13 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
         {tab === 'categories' && (
           <div className="bg-white rounded-2xl border border-slate-200 p-6">
             <h2 className="text-lg font-bold text-slate-900 mb-4">Manage Categories</h2>
-            <CategoryManager initialCategories={initialCategories} />
+            <CategoryManager
+              categories={categories}
+              onCategoriesChange={(next) => {
+                setCategories(next);
+                router.refresh();
+              }}
+            />
           </div>
         )}
 
@@ -363,7 +371,14 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
         {tab === 'products' && (
           <div className="bg-white rounded-2xl border border-slate-200 p-6">
             <h2 className="text-lg font-bold text-slate-900 mb-4">Manage Products</h2>
-            <ProductManager initialProducts={initialProducts} categories={initialCategories} />
+            <ProductManager
+              products={products}
+              categories={categories}
+              onProductsChange={(next) => {
+                setProducts(next);
+                router.refresh();
+              }}
+            />
           </div>
         )}
       </div>

@@ -10,11 +10,11 @@ import {
 } from '@/actions/categories';
 
 interface Props {
-  initialCategories: Category[];
+  categories: Category[];
+  onCategoriesChange: (categories: Category[]) => void;
 }
 
-export function CategoryManager({ initialCategories }: Props) {
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+export function CategoryManager({ categories, onCategoriesChange }: Props) {
   const [newName, setNewName] = useState('');
   const [adding, setAdding] = useState(false);
   const addingRef = useRef(false); // synchronous guard against rapid taps
@@ -29,7 +29,7 @@ export function CategoryManager({ initialCategories }: Props) {
     setAdding(true);
     const result = await createCategory(name);
     if (result.success && result.data) {
-      setCategories((prev) => [...prev, result.data!]);
+      onCategoriesChange([...categories, result.data!]);
       setNewName('');
     }
     addingRef.current = false;
@@ -45,17 +45,21 @@ export function CategoryManager({ initialCategories }: Props) {
     const name = editName.trim();
     if (!name) return;
     setLoading(id);
-    await updateCategory(id, { name });
-    setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, name } : c)));
-    setEditId(null);
+    const result = await updateCategory(id, { name });
+    if (result.success) {
+      onCategoriesChange(categories.map((c) => (c.id === id ? { ...c, name } : c)));
+      setEditId(null);
+    }
     setLoading(null);
   };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this category? Products in it will be uncategorised.')) return;
     setLoading(id);
-    await deleteCategory(id);
-    setCategories((prev) => prev.filter((c) => c.id !== id));
+    const result = await deleteCategory(id);
+    if (result.success) {
+      onCategoriesChange(categories.filter((c) => c.id !== id));
+    }
     setLoading(null);
   };
 
@@ -64,7 +68,7 @@ export function CategoryManager({ initialCategories }: Props) {
     await reorderCategory(id, direction);
     // Re-sort locally after swap
     const result = await import('@/actions/categories').then((m) => m.getCategories());
-    setCategories(result);
+    onCategoriesChange(result);
     setLoading(null);
   };
 

@@ -22,7 +22,7 @@ export function CategorySidebar({ categories, selectedId, onSelect }: Props) {
       </div>
 
       {/* Categories */}
-      <nav className="flex-1 overflow-y-auto py-3">
+      <nav className="app-scroll flex-1 overflow-y-auto py-3">
         {items.map((cat) => {
           const isActive = selectedId === cat.id;
           return (

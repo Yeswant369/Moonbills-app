@@ -25,11 +25,13 @@
 html {
   /* dvh = dynamic viewport height — shrinks on Android when address bar hides */
   min-height: 100dvh;
+  height: 100%;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   min-height: 100dvh;
+  height: 100%;
   -webkit-text-size-adjust: 100%;
   /* Prevent overscroll bounce on iPad / Android WebView */
   overscroll-behavior: none;
@@ -46,6 +48,11 @@ body {
   flex-direction: column;
 }
 
+#__next,
+body > * {
+  min-height: 0;
+}
+
 /*
   .safe-screen — use this instead of h-screen on full-height page
   containers inside native WebViews. Fills the padded body height
@@ -53,11 +60,19 @@ body {
 */
 .safe-screen {
   flex: 1;
+  min-height: 0;
   /* Fallback for browsers that don't support dvh */
   height: calc(100vh - var(--safe-top) - var(--safe-bottom));
   /* Preferred: shrinks when on-screen keyboard appears */
   height: calc(100dvh - var(--safe-top) - var(--safe-bottom));
-  overflow: hidden;
+  /* Do NOT set overflow here — each page controls its own scrolling.
+     POS uses overflow-hidden on its own div; Settings/Reports use overflow-y-auto. */
+}
+
+.app-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 /* Prevent double-tap zoom on touch buttons */
