@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Category, Product, Settings, PrinterWidth } from '@/lib/types';
 import { PinGate } from '@/components/admin/PinGate';
 import { CategoryManager } from '@/components/admin/CategoryManager';
@@ -30,6 +30,30 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+
+  // ── Printer connection settings (localStorage only) ────────
+  const [printMode, setPrintMode] = useState<'tcp' | 'airprint'>('tcp');
+  const [printerIp, setPrinterIp] = useState('192.168.1.100');
+  const [printerPort, setPrinterPort] = useState('9100');
+  const [printSettingsSaved, setPrintSettingsSaved] = useState(false);
+
+  // Load from localStorage on mount (client-only)
+  useEffect(() => {
+    const mode = localStorage.getItem('printMode') as 'tcp' | 'airprint' | null;
+    const ip   = localStorage.getItem('printerIp');
+    const port = localStorage.getItem('printerPort');
+    if (mode)  setPrintMode(mode);
+    if (ip)    setPrinterIp(ip);
+    if (port)  setPrinterPort(port);
+  }, []);
+
+  const handleSavePrintSettings = () => {
+    localStorage.setItem('printMode',   printMode);
+    localStorage.setItem('printerIp',   printerIp.trim());
+    localStorage.setItem('printerPort', printerPort.trim() || '9100');
+    setPrintSettingsSaved(true);
+    setTimeout(() => setPrintSettingsSaved(false), 2000);
+  };
 
   const handleSaveGeneral = async () => {
     setError('');
@@ -229,6 +253,85 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
                     : '80mm roll · 48 chars wide · standard layout'}
                 </p>
               </div>
+            </div>
+
+            {/* ── Printing Mode ────────────────────────────── */}
+            <div className="border-t border-slate-100 pt-5">
+              <h3 className="text-base font-bold text-slate-900 mb-1">Printing</h3>
+              <p className="text-xs text-slate-400 mb-4">
+                Choose how receipts are sent to the printer. TCP mode is for WiFi thermal printers
+                (ESC-POS over port 9100). AirPrint uses the device's native print service.
+              </p>
+
+              {/* Mode toggle */}
+              <div className="flex gap-2 mb-4">
+                {(['tcp', 'airprint'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setPrintMode(mode)}
+                    className={`flex-1 h-16 rounded-xl border-2 text-sm font-semibold transition-all flex flex-col items-center justify-center gap-1 ${
+                      printMode === mode
+                        ? 'border-orange-500 bg-orange-50 text-orange-700'
+                        : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+                    }`}
+                  >
+                    <span className="text-lg">{mode === 'tcp' ? '🖨️' : '📡'}</span>
+                    <span>{mode === 'tcp' ? 'Network Printer (TCP)' : 'AirPrint / System Print'}</span>
+                    {mode === 'tcp' && <span className="text-[10px] text-slate-400 font-normal">Default</span>}
+                  </button>
+                ))}
+              </div>
+
+              {/* TCP-only: IP + Port inputs */}
+              {printMode === 'tcp' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Printer IP Address
+                    </label>
+                    <input
+                      id="printer-ip"
+                      type="text"
+                      inputMode="url"
+                      value={printerIp}
+                      onChange={(e) => setPrinterIp(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-orange-400"
+                      placeholder="192.168.1.100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Port
+                    </label>
+                    <input
+                      id="printer-port"
+                      type="number"
+                      min="1"
+                      max="65535"
+                      value={printerPort}
+                      onChange={(e) => setPrinterPort(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-orange-400"
+                      placeholder="9100"
+                    />
+                    <p className="text-xs text-slate-400 mt-1">Default: 9100 (ESC-POS)</p>
+                  </div>
+                </div>
+              )}
+
+              {printMode === 'airprint' && (
+                <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3 text-xs text-blue-700">
+                  📡 AirPrint will use your device&apos;s native printer dialog. No IP address needed.
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleSavePrintSettings}
+                className="mt-4 px-6 h-10 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl transition-colors"
+              >
+                {printSettingsSaved ? '✓ Print Settings Saved!' : 'Save Print Settings'}
+              </button>
             </div>
 
             {error && <p className="text-sm text-red-500 font-medium">{error}</p>}

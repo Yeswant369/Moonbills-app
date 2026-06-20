@@ -6,6 +6,7 @@ import { Category, Product, CartItem, Settings, PaymentMethod, ReceiptData, Pend
 import { generateBillNumber, round2, formatCurrency } from '@/lib/utils';
 import { createSale } from '@/actions/sales';
 import { queueSale, getPendingSales, removeSale } from '@/lib/offline-queue';
+import { printBill } from '@/lib/printer';
 import { CategorySidebar } from './CategorySidebar';
 import { ProductGrid } from './ProductGrid';
 import { CartPanel } from './CartPanel';
@@ -144,15 +145,21 @@ export function POSScreen({ categories, products, settings }: Props) {
     if (!receiptData || printTriggeredRef.current) return;
     printTriggeredRef.current = true;
 
-    const savedItems = receiptData.items;
-    const savedMethod = receiptData.paymentMethod;
+    const savedData       = receiptData;       // stable snapshot
+    const savedItems      = receiptData.items;
+    const savedMethod     = receiptData.paymentMethod;
     const savedBillNumber = receiptData.billNumber;
 
-    // Wait one tick for React to render the receipt DOM
-    const printTimer = setTimeout(() => {
-      window.print();
+    // Wait one tick for React to render the receipt DOM (needed for window.print() fallback)
+    const printTimer = setTimeout(async () => {
+      // ── PRINT (TCP / AirPrint / browser fallback) ──────────
+      try {
+        await printBill(savedData);
+      } catch {
+        // printBill already shows an alert; continue with Supabase save regardless
+      }
 
-      // Fire-and-forget background save
+      // ── SAVE to Supabase (fire-and-forget, unchanged) ───────
       createSale(savedItems, savedMethod, settings, savedBillNumber)
         .then((result) => {
           if (!result.success) {
@@ -183,7 +190,7 @@ export function POSScreen({ categories, products, settings }: Props) {
           showToast('Offline — sale queued for sync', 'warning', { duration: 0 });
         });
 
-      // Clear cart after print dialog opens
+      // Clear cart after print
       setTimeout(() => {
         setCart([]);
         setReceiptData(null);
@@ -416,7 +423,7 @@ export function POSScreen({ categories, products, settings }: Props) {
         />
       )}
 
-      {/* ── Receipt (print-only) ────────────────────────────── */}
+      {/* ── Receipt (print-only, used for browser window.print() fallback) ── */}
       <Receipt data={receiptData} printerWidth={settings.printer_width} />
 
       {/* ── Toasts ──────────────────────────────────────────── */}
