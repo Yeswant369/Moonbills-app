@@ -6,14 +6,58 @@
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* ── Safe-area custom property ──────────────────────────── */
+/*
+  env(safe-area-inset-top) is non-zero only when running inside a
+  native Capacitor WebView on Android / iOS (or a PWA installed
+  full-screen). It equals the height of the OS status bar so our
+  header never slides under the notification panel.
+  Falls back to 0 in a normal browser tab.
+*/
+:root {
+  --safe-top:    env(safe-area-inset-top,    0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left,   0px);
+  --safe-right:  env(safe-area-inset-right,  0px);
+}
+
 /* ── Base ──────────────────────────────────────────────── */
-html,
-body {
-  height: 100%;
+html {
+  /* dvh = dynamic viewport height — shrinks on Android when address bar hides */
+  min-height: 100dvh;
   -webkit-text-size-adjust: 100%;
-  /* Prevent overscroll bounce on iPad */
+}
+
+body {
+  min-height: 100dvh;
+  -webkit-text-size-adjust: 100%;
+  /* Prevent overscroll bounce on iPad / Android WebView */
   overscroll-behavior: none;
   touch-action: pan-x pan-y;
+  /* Push content below the Android status bar / iOS notch */
+  padding-top: var(--safe-top);
+  /* Honour home-indicator area at the bottom */
+  padding-bottom: var(--safe-bottom);
+  /* Side cutouts (landscape foldables / iPads) */
+  padding-left:  var(--safe-left);
+  padding-right: var(--safe-right);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+  .safe-screen — use this instead of h-screen on full-height page
+  containers inside native WebViews. Fills the padded body height
+  exactly, so the POS grid never overflows into the status bar.
+*/
+.safe-screen {
+  flex: 1;
+  /* Fallback for browsers that don't support dvh */
+  height: calc(100vh - var(--safe-top) - var(--safe-bottom));
+  /* Preferred: shrinks when on-screen keyboard appears */
+  height: calc(100dvh - var(--safe-top) - var(--safe-bottom));
+  overflow: hidden;
 }
 
 /* Prevent double-tap zoom on touch buttons */

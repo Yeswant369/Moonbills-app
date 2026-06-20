@@ -246,7 +246,7 @@ export function POSScreen({ categories, products, settings }: Props) {
   return (
     <>
       {/* ── Main POS Layout ─────────────────────────────────── */}
-      <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <div className="safe-screen flex bg-slate-50 overflow-hidden">
 
         {/* Left: Categories — vertical sidebar, hidden on mobile */}
         <CategorySidebar
