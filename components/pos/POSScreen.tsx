@@ -304,18 +304,30 @@ export function POSScreen({ categories, products, settings }: Props) {
           <header className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between gap-3 flex-shrink-0">
             {/* Mobile brand (hidden when sidebar is visible) */}
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              {/*<span className="md:hidden text-slate-900 font-bold text-base">🧁</span>*/}
-              <div className="min-w-0">
-                <h1 className="text-base font-bold text-slate-900 leading-tight truncate">
-                  menu
-                </h1>
-                <p className="text-xs text-slate-400 mt-0.5 truncate hidden sm:block">
-                  {selectedCategoryId
-                    ? liveCategories.find((c) => c.id === selectedCategoryId)?.name ?? 'Category'
-                    : 'All Items'}{' '}
-                  · {filteredProducts.length} products
-                </p>
-              </div>
+                       {/* 1. NEW MOBILE LOGO: Only visible on smaller screens (md:hidden) */}
+          <div className="flex items-center gap-2 md:hidden shrink-0 pr-3 border-r border-slate-200">
+            <img 
+              src="/logo.png" 
+              alt="Toasted Tales" 
+              className="w-15 h-15 md:w-12 md:h-12 rounded-full bg-slate-100 object-cover" 
+            />
+            <span className="font-bold text-slate-900 text-lg md:text-xl whitespace-nowrap">
+              Toasted Tales
+            </span>
+          </div>
+
+          {/* 2. EXISTING MENU TEXT */}
+          <div className="min-w-0">
+            <h1 className="text-base font-bold text-slate-900 leading-tight truncate">
+              menu
+            </h1>
+            <p className="text-xs text-slate-400 mt-0.5 truncate hidden sm:block">
+              {selectedCategoryId
+                ? liveCategories.find((c) => c.id === selectedCategoryId)?.name ?? 'Category'
+                : 'All Items'}{' '}
+              · {filteredProducts.length} products
+            </p>
+          </div>
             </div>
 
             <div className="flex items-center gap-2 flex-shrink-0">
