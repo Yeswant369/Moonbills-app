@@ -185,16 +185,13 @@ export function ProductManager({ products, categories, onProductsChange }: Props
             <div>
               <label className="text-xs text-slate-500 mb-1 block">Name *</label>
               <input
-                autoFocus
-                type="text"
-                value={addForm.name}
-                onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-placeholder="e.g. Chocolate Cake"
-                {/* value={addForm.name}
-                 onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-                 placeholder="e.g. Chocolate Cake" */}
-                 className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
-               />
+  autoFocus
+  type="text"
+  value={addForm.name}
+  onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+  placeholder="e.g. Chocolate Cake"
+  className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none"
+/>
             </div>
             <div>
               <label className="text-xs text-slate-500 mb-1 block">Price (₹) *</label>
