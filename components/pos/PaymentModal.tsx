@@ -23,7 +23,7 @@ export function PaymentModal({ total, onSelect, onClose }: Props) {
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Choose Payment</h2>
           <p className="text-slate-500 text-sm">Amount Due</p>
-          <p className="text-4xl font-black text-orange-600 mt-1">
+          <p className="text-4xl font-black text-pink-600 mt-1">
             {formatCurrency(total)}
           </p>
         </div>

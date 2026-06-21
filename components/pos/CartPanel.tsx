@@ -47,7 +47,7 @@ export function CartPanel({
         <h2 className="text-sm font-bold text-slate-900">
           Current Bill
           {totalQty > 0 && (
-            <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
+            <span className="ml-2 text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full font-semibold">
               {totalQty} items
             </span>
           )}
@@ -119,7 +119,7 @@ export function CartPanel({
                     </span>
                     <button
                       onClick={() => onUpdateQuantity(item.product_id, 1)}
-                      className="w-8 h-8 rounded-lg bg-orange-100 hover:bg-orange-200 active:bg-orange-300 flex items-center justify-center text-orange-700 font-bold transition-colors text-lg leading-none"
+                      className="w-8 h-8 rounded-lg bg-pink-100 hover:bg-pink-200 active:bg-pink-300 flex items-center justify-center text-pink-700 font-bold transition-colors text-lg leading-none"
                       aria-label="Increase quantity"
                     >
                       +
@@ -149,7 +149,7 @@ export function CartPanel({
           </div>
           <div className="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-slate-200">
             <span>Grand Total</span>
-            <span className="text-orange-600">{formatCurrency(total)}</span>
+            <span className="text-pink-600">{formatCurrency(total)}</span>
           </div>
         </div>
 
@@ -161,7 +161,7 @@ export function CartPanel({
               w-full py-3.5 rounded-xl text-base font-bold transition-all
               ${isEmpty
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white shadow-md shadow-orange-200'
+                : 'bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white shadow-md shadow-pink-200'
               }
             `}
           >

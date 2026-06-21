@@ -144,7 +144,7 @@ export function ProductManager({ products, categories, onProductsChange }: Props
         <select
           value={filterCat}
           onChange={(e) => setFilterCat(e.target.value)}
-          className="h-9 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+          className="h-9 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white"
         >
           <option value="all">All Categories</option>
           <option value="uncategorized">Uncategorized</option>
@@ -170,7 +170,7 @@ export function ProductManager({ products, categories, onProductsChange }: Props
               }
               setShowAddForm((v) => !v);
             }}
-            className="px-4 h-9 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm rounded-xl transition-colors"
+            className="px-4 h-9 bg-pink-500 hover:bg-pink-600 text-white font-semibold text-sm rounded-xl transition-colors"
           >
             {showAddForm ? '✕ Cancel' : '+ Add Product'}
           </button>
@@ -179,8 +179,8 @@ export function ProductManager({ products, categories, onProductsChange }: Props
 
       {/* Add Product Form */}
       {showAddForm && (
-        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 space-y-3">
-          <h4 className="text-sm font-bold text-orange-900">New Product</h4>
+        <div className="bg-pink-50 border border-pink-200 rounded-2xl p-4 space-y-3">
+          <h4 className="text-sm font-bold text-pink-900">New Product</h4>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-slate-500 mb-1 block">Name *</label>
@@ -189,9 +189,12 @@ export function ProductManager({ products, categories, onProductsChange }: Props
                 type="text"
                 value={addForm.name}
                 onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="e.g. Chocolate Cake"
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
+placeholder="e.g. Chocolate Cake"
+                 value={addForm.name}
+                 onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                 placeholder="e.g. Chocolate Cake"
+                 className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+               />
             </div>
             <div>
               <label className="text-xs text-slate-500 mb-1 block">Price (₹) *</label>
@@ -199,19 +202,19 @@ export function ProductManager({ products, categories, onProductsChange }: Props
                 type="number"
                 min="0"
                 step="0.5"
-                value={addForm.price}
-                onChange={(e) => setAddForm((f) => ({ ...f, price: e.target.value }))}
-                placeholder="0.00"
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
+value={addForm.price}
+                 onChange={(e) => setAddForm((f) => ({ ...f, price: e.target.value }))}
+                 placeholder="0.00"
+                 className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+               />
             </div>
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">Category</label>
-              <select
-                value={addForm.category_id}
-                onChange={(e) => setAddForm((f) => ({ ...f, category_id: e.target.value }))}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
-              >
+<label className="text-xs text-slate-500 mb-1 block">Category</label>
+               <select
+                 value={addForm.category_id}
+                 onChange={(e) => setAddForm((f) => ({ ...f, category_id: e.target.value }))}
+                 className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white"
+               >
                 <option value="">Uncategorised</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -224,7 +227,7 @@ export function ProductManager({ products, categories, onProductsChange }: Props
                   type="checkbox"
                   checked={addForm.active}
                   onChange={(e) => setAddForm((f) => ({ ...f, active: e.target.checked }))}
-                  className="w-4 h-4 rounded accent-orange-500"
+                  className="w-4 h-4 rounded accent-pink-500"
                 />
                 <span className="text-sm text-slate-700">Active (visible in POS)</span>
               </label>
@@ -232,9 +235,9 @@ export function ProductManager({ products, categories, onProductsChange }: Props
           </div>
           <button
             onClick={handleAdd}
-            disabled={loading === 'add' || !addForm.name.trim() || !addForm.price}
-            className="px-5 h-10 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white disabled:text-slate-400 font-semibold text-sm rounded-xl transition-colors"
-          >
+disabled={loading === 'add' || !addForm.name.trim() || !addForm.price}
+             className="px-5 h-10 bg-pink-500 hover:bg-pink-600 disabled:bg-slate-200 text-white disabled:text-slate-400 font-semibold text-sm rounded-xl transition-colors"
+           >
             {loading === 'add' ? 'Adding…' : 'Add Product'}
           </button>
         </div>
@@ -261,24 +264,24 @@ export function ProductManager({ products, categories, onProductsChange }: Props
                   // Edit row
                   <>
                     <input
-                      autoFocus
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                      className="h-9 px-2 rounded-lg border border-orange-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+autoFocus
+                       type="text"
+                       value={editForm.name}
+                       onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                       className="h-9 px-2 rounded-lg border border-pink-300 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
                     />
                     <input
                       type="number"
                       min="0"
                       step="0.5"
-                      value={editForm.price}
-                      onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))}
-                      className="h-9 px-2 rounded-lg border border-orange-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+value={editForm.price}
+                       onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))}
+                       className="h-9 px-2 rounded-lg border border-pink-300 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
                     />
                     <select
                       value={editForm.category_id}
                       onChange={(e) => setEditForm((f) => ({ ...f, category_id: e.target.value }))}
-                      className="h-9 px-2 rounded-lg border border-orange-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                      className="h-9 px-2 rounded-lg border border-pink-300 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white"
                     >
                       <option value="">Uncategorised</option>
                       {categories.map((c) => (
@@ -287,18 +290,18 @@ export function ProductManager({ products, categories, onProductsChange }: Props
                     </select>
                     <label className="flex items-center gap-1 cursor-pointer">
                       <input
-                        type="checkbox"
-                        checked={editForm.active}
-                        onChange={(e) => setEditForm((f) => ({ ...f, active: e.target.checked }))}
-                        className="w-4 h-4 rounded accent-orange-500"
-                      />
+type="checkbox"
+checked={editForm.active}
+                         onChange={(e) => setEditForm((f) => ({ ...f, active: e.target.checked }))}
+                         className="w-4 h-4 rounded accent-pink-500"
+                       />
                       <span className="text-xs">{editForm.active ? 'Active' : 'Hidden'}</span>
                     </label>
                     <div className="flex gap-1 justify-end">
                       <button
-                        onClick={() => handleSaveEdit(product.id)}
-                        disabled={loading === product.id}
-                        className="px-3 h-8 text-xs bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+onClick={() => handleSaveEdit(product.id)}
+                         disabled={loading === product.id}
+                         className="px-3 h-8 text-xs bg-pink-500 text-white rounded-lg font-semibold hover:bg-pink-600 transition-colors"
                       >
                         Save
                       </button>
@@ -314,7 +317,7 @@ export function ProductManager({ products, categories, onProductsChange }: Props
                   // View row
                   <>
                     <span className="text-sm font-medium text-slate-800 truncate">{product.name}</span>
-                    <span className="text-sm font-bold text-orange-600">{formatCurrency(product.price)}</span>
+                    <span className="text-sm font-bold text-pink-600">{formatCurrency(product.price)}</span>
                     <span className="text-xs text-slate-500 truncate">{getCatName(product.category_id)}</span>
                     <button
                       onClick={() => handleToggle(product.id, !product.active)}

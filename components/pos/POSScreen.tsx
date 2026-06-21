@@ -172,7 +172,7 @@ export function POSScreen({ categories, products, settings }: Props) {
         total,
         paymentMethod: method,
         timestamp: new Date().toISOString(),
-        restaurantName: liveSettings.restaurant_name,
+        restaurantName: "Toasted Tales",
         gstNumber: liveSettings.gst_number,
       };
       setShowPaymentModal(false);
@@ -304,10 +304,10 @@ export function POSScreen({ categories, products, settings }: Props) {
           <header className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between gap-3 flex-shrink-0">
             {/* Mobile brand (hidden when sidebar is visible) */}
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <span className="md:hidden text-slate-900 font-bold text-base">🧁</span>
+              {/*<span className="md:hidden text-slate-900 font-bold text-base">🧁</span>*/}
               <div className="min-w-0">
                 <h1 className="text-base font-bold text-slate-900 leading-tight truncate">
-                  {liveSettings.restaurant_name}
+                  menu
                 </h1>
                 <p className="text-xs text-slate-400 mt-0.5 truncate hidden sm:block">
                   {selectedCategoryId
@@ -353,8 +353,8 @@ export function POSScreen({ categories, products, settings }: Props) {
                   flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium
                   transition-all whitespace-nowrap
                   ${selectedCategoryId === cat.id
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+? 'bg-pink-500 text-white'
+                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
                   }
                 `}
               >
@@ -383,15 +383,15 @@ export function POSScreen({ categories, products, settings }: Props) {
               onClick={() => setCartOpen(true)}
               className="
                 flex items-center gap-3 px-6 py-3.5
-                bg-orange-500 hover:bg-orange-600 active:bg-orange-700
+                bg-pink-500 hover:bg-pink-600 active:bg-pink-700
                 text-white font-bold text-sm rounded-2xl
-                shadow-lg shadow-orange-500/40
+                 shadow-lg shadow-pink-500/40
                 transition-colors
               "
             >
               <span className="relative">
                 🧾
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-white text-orange-600 rounded-full text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-white text-pink-600 rounded-full text-[10px] font-bold flex items-center justify-center">
                   {totalQty}
                 </span>
               </span>

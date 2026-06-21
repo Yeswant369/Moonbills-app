@@ -70,7 +70,7 @@ export function MonthlyReport() {
         <button
           onClick={loadSales}
           disabled={loading}
-          className="px-5 h-10 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white font-semibold text-sm rounded-xl transition-colors"
+          className="px-5 h-10 bg-pink-500 hover:bg-pink-600 disabled:bg-slate-200 text-white font-semibold text-sm rounded-xl transition-colors"
         >
           {loading ? 'Loading…' : 'View Report'}
         </button>
@@ -143,7 +143,7 @@ export function MonthlyReport() {
                     <td className="px-4 py-3 text-right font-bold text-slate-700">{formatCurrency(cashRevenue)}</td>
                     <td className="px-4 py-3 text-right font-bold text-slate-700">{formatCurrency(upiRevenue)}</td>
                     <td className="px-4 py-3 text-right font-bold text-slate-700">{formatCurrency(cardRevenue)}</td>
-                    <td className="px-4 py-3 text-right font-black text-orange-600 text-base">{formatCurrency(totalRevenue)}</td>
+                    <td className="px-4 py-3 text-right font-black text-pink-600 text-base">{formatCurrency(totalRevenue)}</td>
                   </tr>
                 </tfoot>
               </table>

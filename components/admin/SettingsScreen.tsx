@@ -183,7 +183,7 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
                     step="0.5"
                     value={form.gst_percentage}
                     onChange={(e) => setForm((f) => ({ ...f, gst_percentage: e.target.value }))}
-                    className="w-32 h-11 px-4 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    className="w-32 h-11 px-4 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
                   />
                   <p className="text-xs text-slate-400 mt-1">Common rates: 0%, 5%, 12%, 18%</p>
                 </div>
@@ -238,7 +238,7 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
                       onClick={() => setForm((f) => ({ ...f, printer_width: w }))}
                       className={`flex-1 h-20 rounded-xl border-2 text-sm font-semibold transition-all flex flex-col items-center justify-center gap-1 ${
                         form.printer_width === w
-                          ? 'border-orange-500 bg-orange-50 text-orange-700'
+? 'border-pink-500 bg-pink-50 text-pink-700'
                           : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                       }`}
                     >
@@ -287,7 +287,7 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
                     onClick={() => setPrintMode(mode)}
                     className={`flex-1 h-16 rounded-xl border-2 text-sm font-semibold transition-all flex flex-col items-center justify-center gap-1 ${
                       printMode === mode
-                        ? 'border-orange-500 bg-orange-50 text-orange-700'
+                        ? 'border-pink-500 bg-pink-50 text-pink-700'
                         : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                     }`}
                   >
@@ -354,7 +354,7 @@ export function SettingsScreen({ initialSettings, initialCategories, initialProd
             <button
               onClick={handleSaveGeneral}
               disabled={saving}
-              className="px-8 h-11 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white disabled:text-slate-400 font-bold text-sm rounded-xl transition-colors"
+              className="px-8 h-11 bg-pink-500 hover:bg-pink-600 disabled:bg-slate-200 text-white disabled:text-slate-400 font-bold text-sm rounded-xl transition-colors"
             >
               {saving ? 'Saving…' : saved ? '✓ Saved!' : 'Save Changes'}
             </button>

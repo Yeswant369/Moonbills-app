@@ -63,7 +63,7 @@ export function PinGate({ onSuccess, title = 'Enter Admin PIN' }: Props) {
               key={i}
               className={`w-4 h-4 rounded-full border-2 transition-colors ${
                 i < pin.length
-                  ? 'bg-orange-500 border-orange-500'
+                  ? 'bg-pink-500 border-pink-500'
                   : 'bg-transparent border-slate-300'
               }`}
             />
@@ -103,7 +103,7 @@ export function PinGate({ onSuccess, title = 'Enter Admin PIN' }: Props) {
               <button
                 key={i}
                 onClick={() => handleDigit(d)}
-                className="h-14 rounded-xl bg-slate-100 hover:bg-orange-100 active:bg-orange-200 text-slate-900 text-xl font-semibold transition-colors"
+                className="h-14 rounded-xl bg-slate-100 hover:bg-pink-100 active:bg-pink-200 text-slate-900 text-xl font-semibold transition-colors"
               >
                 {d}
               </button>
@@ -120,7 +120,7 @@ export function PinGate({ onSuccess, title = 'Enter Admin PIN' }: Props) {
         <button
           onClick={handleSubmit}
           disabled={!pin || loading}
-          className="w-full h-13 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-base transition-colors"
+          className="w-full h-13 rounded-xl bg-pink-500 hover:bg-pink-600 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-base transition-colors"
         >
           {loading ? 'Verifying...' : 'Unlock'}
         </button>

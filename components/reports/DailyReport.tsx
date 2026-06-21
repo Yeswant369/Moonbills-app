@@ -40,12 +40,12 @@ export function DailyReport() {
           value={date}
           max={todayString()}
           onChange={(e) => handleDateChange(e.target.value)}
-          className="h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
         />
         <button
           onClick={() => loadSales(date)}
           disabled={loading}
-          className="px-5 h-10 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white font-semibold text-sm rounded-xl transition-colors"
+          className="px-5 h-10 bg-pink-500 hover:bg-pink-600 disabled:bg-slate-200 text-white font-semibold text-sm rounded-xl transition-colors"
         >
           {loading ? 'Loading…' : 'View Report'}
         </button>
@@ -118,7 +118,7 @@ export function DailyReport() {
                     <td colSpan={4} className="px-4 py-3 text-sm font-bold text-slate-700">
                       Grand Total ({totalBills} bills)
                     </td>
-                    <td className="px-4 py-3 text-right font-black text-orange-600 text-base">
+                    <td className="px-4 py-3 text-right font-black text-pink-600 text-base">
                       {formatCurrency(totalSales)}
                     </td>
                   </tr>

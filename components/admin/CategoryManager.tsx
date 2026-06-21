@@ -101,12 +101,12 @@ export function CategoryManager({
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           placeholder="New category name…"
-          className="flex-1 h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          className="flex-1 h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
         />
         <button
           onClick={handleAdd}
           disabled={adding || !newName.trim()}
-          className="px-4 h-10 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white font-semibold text-sm rounded-xl transition-colors"
+          className="px-4 h-10 bg-pink-500 hover:bg-pink-600 disabled:bg-slate-200 text-white font-semibold text-sm rounded-xl transition-colors"
         >
           {adding ? '…' : '+ Add'}
         </button>
@@ -150,7 +150,7 @@ export function CategoryManager({
                     if (e.key === 'Enter') handleSaveEdit(cat.id);
                     if (e.key === 'Escape') setEditId(null);
                   }}
-                  className="flex-1 h-9 px-2 rounded-lg border border-orange-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="flex-1 h-9 px-2 rounded-lg border border-pink-300 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
                 />
               ) : (
                 <span className="flex-1 text-sm font-medium text-slate-800">
@@ -168,7 +168,7 @@ export function CategoryManager({
                     <button
                       onClick={() => handleSaveEdit(cat.id)}
                       disabled={loading === cat.id}
-                      className="px-3 h-8 text-xs bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+                      className="px-3 h-8 text-xs bg-pink-500 text-white rounded-lg font-semibold hover:bg-pink-600 transition-colors"
                     >
                       Save
                     </button>
