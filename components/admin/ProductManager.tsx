@@ -190,9 +190,9 @@ export function ProductManager({ products, categories, onProductsChange }: Props
                 value={addForm.name}
                 onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
 placeholder="e.g. Chocolate Cake"
-                 value={addForm.name}
+                {/* value={addForm.name}
                  onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-                 placeholder="e.g. Chocolate Cake"
+                 placeholder="e.g. Chocolate Cake" */}
                  className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
                />
             </div>
